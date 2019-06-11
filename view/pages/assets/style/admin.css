@@ -1,0 +1,437 @@
+@import './com.css';
+/* 
+    Author  : Ahmad Zubair Zahid
+    Year    : 2018
+    Licence : MIT
+*/
+
+:root {
+    --header-height: 60px;
+    --navigator-width: 72px;
+}
+
+#app {
+    min-height: 100%;
+}
+
+/* commons */
+/* 
+    Z-index
+    100 navigator
+
+*/
+
+/* header bar top */
+
+header .inner {
+    margin: 0 4%;
+    padding: 0 1%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.inner .logo {
+    display: inline-flex;
+    align-items: flex-end;
+    cursor: pointer;
+    user-select: none;
+}
+
+.inner .profile {
+    margin-left: auto;
+    padding: 2px;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    background-color: #10ddc2;
+    position: relative;
+    user-select: none;
+}
+
+.inner .profile:hover {
+    cursor: pointer;
+}
+
+.inner .profile img {
+    height: 100%;
+    width: 100%;
+    border-radius: inherit;
+}
+
+.inner .profile .profile_menu {
+    padding: 20px;
+    position: absolute;
+    width: 150px;
+    height: 200px;
+    background-color: #fff;
+    top: 50px;
+    right: 0;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .15);
+    /* hide it by default */
+    visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    transform-origin: top right;
+    z-index: 900;
+}
+
+.profile .profile_menu.maximize {
+    visibility: visible;
+    animation: maximizeAnim .1s ease-in forwards;
+    cursor: default;
+}
+
+.profile .profile_menu.minimize {
+    visibility: visible;
+    animation: minimizeAnim .1s ease-in forwards;
+}
+
+.profile_menu i.btn_minimize {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 5px;
+    font-size: 16px;
+}
+
+.profile_menu .item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.profile_menu .item i {
+    margin-right: 5px;
+}
+
+#app,
+main,
+.toggle-wrapper,
+header,
+.logo-wrapper,
+#cards,
+.nav-icon {
+    display: flex;
+}
+
+#app,
+nav,
+#cards {
+    flex-direction: column;
+}
+
+.toggle-wrapper,
+.logo-wrapper,
+.nav-icon {
+    justify-content: center;
+    align-items: center;
+}
+
+/* END OF COMMONS */
+
+header {
+    width: 100%;
+    height: var(--header-height);
+    background-color: #fff;
+    border-bottom: 1px solid #eaecef;
+    padding: 0px 10px;
+}
+
+.logo-wrapper {
+    height: 100%;
+}
+
+main {
+    height: calc(100vh - var(--header-height));
+    width: 100%;
+}
+
+/* this is the side bar to the left */
+.navigator {
+    height: 100%;
+    z-index: 100;
+    background-color: #fff;
+    padding-top: 10px;
+    position: fixed;
+    /* for fixed position */
+
+    transition-property: shadow width;
+    transition-delay: 0s;
+    transition-duration: .1s;
+    width: var(--navigator-width);
+    overflow-x: hidden;
+}
+
+.navigator:hover {
+    width: 200px;
+    transition-property: shadow width;
+    transition-delay: .1s;
+    transition-duration: .1s;
+    box-shadow: 0 16px 10px 0 rgba(0, 0, 0, 0.14), 0 11px 18px 0 rgba(0, 0, 0, 0.12), 0 13px 5px -1px rgba(0, 0, 0, 0.2);
+}
+
+.link-wrapper .link {
+    height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.link .bg {
+    height: 34px;
+    position: absolute;
+    width: 180px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.link:hover .bg {
+    background-color: #f5f7f7;
+}
+
+.link.selected .bg {
+    background-color: #fce8e6;
+}
+
+
+.link-wrapper .link a {
+    display: flex;
+    /* to put bg into back */
+    z-index: 20;
+    color: #5f6368;
+}
+
+.link a .lable {
+    margin-left: 20px;
+    visibility: hidden;
+    font-size: 16px;
+    font-weight: 200;
+}
+
+.navigator:hover .link a .lable {
+    visibility: visible;
+    transition-property: visibility;
+    transition-delay: .1s;
+    transition-duration: .1s;
+}
+
+.link .nav-icon {
+    min-width: 72px;
+}
+
+.link.selected .nav-icon,
+.link.selected .lable, .link.selected i {
+    color: #f73859;
+    transition-property: color;
+    transition-duration: .1s;
+    font-weight: bold;
+}
+
+
+section#cards {
+    width: 100%;
+    padding-left: var(--navigator-width);
+    overflow-y: scroll;
+}
+
+.card {
+    /* child of main */
+    width: 100%;
+    height: auto;
+    min-height: 100%;
+    max-height: fit-content;
+    padding-bottom: 10px;
+    padding: 0px 10px;
+    background-color: #f5f7f7;
+    /* by default */
+    animation: expand .2s ease-in-out;
+    display: none;
+}
+
+.card.active {
+    display: block;
+}
+
+.controles .controle-item:active {
+    color: #2b2e4a;
+}
+
+/* USERS CARD */
+#users {
+    position: relative;
+}
+
+.users-table {
+    max-width: 100%;
+    width: 100%;
+    border-collapse: collapse;
+    color: #40514e;
+    margin-bottom: 10px;
+}
+
+tr th {
+    position: sticky;
+    top: 0px;
+    background-color: #f5f7f7;
+    border-bottom: 1px solid #eaecef;
+    user-select: none;
+}
+
+tbody tr:hover {
+    box-shadow: 0px 0px 4px 0px rgba(0, 64, 128, .2);
+}
+
+/* tbody tr.user-row {
+    animation: expand .2s ease-in-out;
+} */
+
+
+table td {
+    user-select: none;
+    margin-top: 10px;
+    border-bottom: 1px solid #eaecef;
+}
+
+table tr:last-of-type td {
+    border: none;
+}
+
+tr td:first-child {
+    padding-left: 5px;
+    /* border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px; */
+}
+
+tr td:last-child {
+    padding-right: 5px;
+}
+
+
+table td,
+table th {
+    height: 50px;
+    cursor: default;
+}
+
+
+tr .controles {
+    text-align: right;
+}
+
+tr .controles .controle-item {
+    visibility: hidden;
+}
+
+tr:hover .controles .controle-item {
+    visibility: visible;
+}
+
+tr .controles.show .controle-item {
+    visibility: visible;
+}
+
+/* END OF USERS CARD */
+/* ADD USER CARD */
+#adduser, #edituser {
+    padding-top: 50px;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+
+#adduser .form-row, #edituser .form-row {
+    padding: 10px 0;
+    display: flex;
+    justify-content: stretch;
+}
+
+.form-row .in {
+    font-size: 14px;
+}
+
+.form-row .column {
+    flex-basis: 0;
+    flex-grow: 1;
+}
+
+.form-row label {
+    margin-right: 20px;
+    text-align: right;
+    word-break: keep-all;
+}
+
+.form-row .column:nth-child(2) {
+    min-width: 250px;
+}
+
+@media (max-width: 450px) {
+    .form-row {
+        flex-direction: column;
+    }
+
+    .form-row label {
+        text-align: left;
+        margin-right: 5px 0;
+    }
+
+    .form-row .in,
+    .form-row .add-btn,
+    .form-row select {
+        min-height: 25px;
+    }
+}
+
+.add-btn {
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 18px;
+    border-radius: 4px;
+    width: 100%;
+    margin-top: 20px;
+    background-color: #0f81c7;
+    color: #fff;
+    height: 30px;
+}
+
+.add-btn:hover {
+    background-color: #1972a4;
+}
+
+.add-btn:active {
+    box-shadow: 0 0 1px 2px rgba(37, 42, 52, 0.3);
+    background-color: #06648c;
+}
+
+.add-btn:focus {
+    box-shadow: 0 0 1px 2px rgba(37, 42, 52, 0.3);
+    background-color: #06648c;
+}
+
+/* user add cards error */
+.user-errors,
+.user-errors .erorr {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.user-errors {
+    position: absolute;
+    right: 0px;
+    margin-right: 20px;
+    top: 150px;
+    width: 200px;
+}
+
+.user-errors .erorr {
+    height: auto;
+    min-height: 30px;
+    width: 100%;
+    margin: 5px;
+    padding: 5px;
+    color: #fff;
+    background-color: #f73859;
+    border-radius: 4px;
+    animation: scaleUP .1s ease-in forwards;
+}

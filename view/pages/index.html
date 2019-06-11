@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Dictionary</title>
+
+    <script>
+        // mini lib
+        const select = e => document.querySelector(e);
+        const $$ = e => document.querySelectorAll(e);
+    </script>
+
+    <script src="/static/jslib/vue.js"></script>
+    <script src="/static/jslib/axios.min.js"></script>
+    <!-- <script src="/static/jslib/lodash.core.js"></script> -->
+
+    <link rel="stylesheet" href="/static/style/index.css">
+    <!-- icons -->
+    <link rel="stylesheet" href="/static/icons/materialicons.css">
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <a href="/" tabindex="-1">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAADFwAAAxcBwpsE1QAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAD4SURBVGiB7dUxSsRAFMbx/1s2EOwFrfYQuYitNh5BCyuRrRavIewFPEaqHMJKFg8QEpBnk7DNNjqReY7fr0uT9z6GbwZERCQDA2ia5gx4Bq6AzZIDuq6bZ/iS/wXezOy1qqrHtm37NYC778zsbuFBv23j7vfjOH4CDysAM7vOvFSKG4DV9HGRcZFUl3AM8ucpSDTrXIPna/knTl3lOpFUSz+QxZxIMUFU9mhU9miKCaKyR6OyR1NMEJU9GpU9mmKCqOzRqOzRKEg0c5BD1i3SvMMUxMz2eXdJsofp1ur7/qmuawNugfOcW33Dh7u/DMOwzb2IiMg/9gXkEkMSlB9b8QAAAABJRU5ErkJggg==">
+            </a>
+        </div>
+        <nav>
+            <div class="login" onclick="vm.toggleLogin()">
+                <a href="/login" id="login-link">Sign in</a>
+                <a href="/login" id="profile-link">Profile</a>
+            </div>
+            <div class="blog">
+                <a href="#blog">Blog</a>
+            </div>
+        </nav>
+    </header>
+    <div id="app">
+        <div class="search-area">
+
+            <div class="search-input-wrapper" dir="rtl">
+                <input @keydown.enter="getWordMeaning(search)" maxlength="25" id="search-input" v-model:value='search'
+                    type="text" lang="ps" dir="rtl" :placeholder="placeholder" @focus="wordNotFound=false">
+                <button @click="getWordMeaning(search)" id="search-button" tabindex="-1"><i class="material-icons">search</i></button>
+            </div>
+
+            <div class="results active" v-if="s_results.length > 0">
+                <div class="scroll-wp">
+                    <div v-for="result in s_results" @keydown.enter.prevent="getWordMeaning(result)" class="result" dir="rtl"
+                        tabindex="0" @click="getWordMeaning(result)">{{result}}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-overlay" @click='s_results = []' v-show='s_results.length > 0'>
+            <!-- when clicked hide results drop down  -->
+            <!-- its z-index is lower then that of drop down -->
+        </div>
+
+        <!-- trending words section -->
+        <section class="top-container">
+            <div class="left-container">
+                <div class="post1">
+
+                </div>
+            </div>
+            <div class="word">
+
+                <!-- <div class="word-headword">{{word.headword}}</div> -->
+                <div id="word-not-found" v-if="wordNotFound">
+                    <span>No exact matches found for ' {{word404}} '</span>
+                </div>
+                <div v-for="(sense, index) in word.senses" class="sense">
+                    <div class="sense-header">
+                        <span class="sense_number" title="Sense number">{{index + 1}}</span>
+                        <div class="word-headword">{{word.headword}}</div>
+
+                        <a onclick="document.querySelector('#playPro').play();" class="play-pro">
+                            <audio style="visibility:hidden;" id="playPro" :src="'/api/dictionary/mp3/f=' + word.pronunciation_url">
+                            </audio>
+                            <img src="/static/img/speaker.png">
+                        </a>
+
+                        <div class="sense-label">{{sense.label}}</div>
+                    </div>
+                    <div class="sense-meaning">{{sense.meaning}}</div>
+                    <div class="sense-examples">
+                        <div v-for="example in sense.examples">
+                            <div>{{example}}</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="right-container">
+
+            </div>
+        </section>
+
+
+
+
+
+        <section class="hero">
+            <div class="quoate">
+                <div class="q-content" >
+                    Digital design is like painting, except the paint never dries.
+                </div>
+                <div class="q-author">
+                    Steffenee Miller
+                </div>
+            </div>
+        </section>
+        <!-- posts sections -->
+        <section class="posts2" id="blog">
+            <!-- top 2 posts -->
+            <div class="posts2-item" v-for='p2 in top_2p' tabindex="0">
+                <a :href="'/blog/v/id='+ p2._id" class="p2-img-w no-img-bg" tabindex="-1">
+                    <!-- 280 / 480 -->
+                    <img :src="p2.hero_image + '/480x280'" alt="">
+                </a>
+                <div class="content">
+                    <a :href="'/blog/v/id='+ p2._id" tabindex="-1">
+                        <h3>
+                            <div lang="ps" dir="rtl" class="title">{{p2.title}}</div>
+                        </h3>
+                        <div lang="ps" dir="rtl" class="brief">{{p2.brief}}</div>
+                    </a>
+                    <div class="footer">
+                        <div class="author">
+                            <div class="author-avatar">
+                                <img src="/static/blog/profile_imgs/me.jpg" alt="">
+                            </div>
+                            <div class="post-meta">
+                                <div class="author-name">{{p2.author}}</div>
+                                <div class="time">{{new Date(p2.date).getFullYear()}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="posts">
+            <div class="post-item" v-for="post in posts" tabindex="0">
+                <a :href="'/blog/v/id='+ post._id" class="p-img-w no-img-bg" tabindex="-1">
+                    <!-- 280 / 480 -->
+                    <img :src="post.hero_image + '/480x280'" alt="">
+                </a>
+                <div class="content">
+                    <a :href="'/blog/v/id='+ post._id" tabindex="-1">
+                        <h3>
+                            <div lang="ps" dir="rtl" class="title">{{post.title}}</div>
+                        </h3>
+                        <div lang="ps" dir="rtl" class="brief">{{post.brief}}</div>
+                    </a>
+                    <div class="footer">
+                        <div class="author">
+                            <div class="author-avatar">
+                                <img src="/static/blog/profile_imgs/me.jpg" alt="">
+                            </div>
+                            <div class="post-meta">
+                                <div class="author-name">{{post.author}}</div>
+                                <div class="time">{{new Date(post.date).getFullYear()}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+    <footer>
+
+        <div class="column">
+            
+        </div>
+        <div class="column"></div>
+        <div class="column"></div>
+        <div class="column"></div>
+
+    </footer>
+
+
+    <script>
+        // it is only callable in every 1 second
+        let getSuggestedWord = debounce((word) => {
+            axios.get('/api/dictionary/suggestions/s=' + word)
+                .then(response => {
+                    // console.log(response.data);
+                    vm.s_results = [];
+                    for (let i = 0; i < response.data.length; i++) {
+                        const hw = response.data[i].headword;
+                        vm.s_results.push(hw);
+                    }
+                }).catch((error) => {
+                    vm.s_results = [];
+                });
+        }, 500);
+
+        const vm = new Vue({
+            el: "#app",
+            data: {
+                placeholder: 'دلته لټون وکړی...',
+                wordNotFound: false,
+                word404: '',
+                posts: [],
+                top_2p: [],
+                p1: {},
+                search: '',
+                s_results: [],
+                word: {},
+            },
+            methods: {
+                resutSelect(event, result) {
+                    vm.search = result;
+                    // console.log(result);
+                    vm.s_results = [];
+                    select('#search-input').focus();
+                    // vm.getWordMeaning()
+
+                },
+                getWordMeaning: (word) => {
+                    vm.search = word;
+                    vm.s_results = [];
+                    axios.get('/api/dictionary/s=' + word)
+                        .then(response => {
+                            // console.log(response);
+                            vm.word = response.data;
+                            vm.wordNotFound = false;
+                        }).catch((error) => {
+                            if (error.response.status == 404) {
+                                vm.wordNotFound = true;
+                                vm.word404 = vm.search;
+                                // word not found
+                            } else console.error(error);
+                        });
+                }
+            },
+            watch: {
+                search: (newValue) => {
+                    // getSuggestedWord(newValue);
+
+                    axios.get('/api/dictionary/suggestion/s=' + newValue)
+                        .then(response => {
+                            vm.s_results = [];
+                            for (let i = 0; i < response.data.length; i++) {
+                                const hw = response.data[i].headword;
+                                vm.s_results.push(hw);
+                            }
+                        }).catch((error) => {
+                            vm.s_results = [];
+                        });
+                }
+            },
+            created() {
+                // returns posts
+                axios.get('/api/blog/')
+                    .then(response => {
+                        vm.posts = response.data;
+                        vm.top_2p.push(vm.posts[0]);
+                        vm.top_2p.push(vm.posts[1]);
+                        vm.p1 = vm.posts[1];
+                    });
+
+                axios.get('/api/dictionary/wordofday')
+                    .then(response => {
+                        // console.log(response.data);
+                        vm.word = response.data;
+                    });
+
+            }
+        });
+
+
+        // check if a current user is logged in
+        axios.get('/api/users/isguest').then((res) => {
+            // console.log(res.data);
+            // is guest
+            if (res.data) {
+                select('#profile-link').classList.remove('active');
+                select('#login-link').classList.add('active');
+            } else {
+                // if not guest
+                select('#login-link').classList.remove('active');
+                select('#profile-link').classList.add('active');
+            }
+        });
+
+        // Returns a function, that, as long as it continues to be invoked, will not
+        // be triggered. The function will be called after it stops being called for
+        // N milliseconds. If `immediate` is passed, trigger the function on the
+        // leading edge, instead of the trailing.
+        function debounce(func, wait, immediate) {
+            var timeout;
+            return function () {
+                var context = this,
+                    args = arguments;
+                var later = function () {
+                    timeout = null;
+                    if (!immediate) func.apply(context, args);
+                };
+                var callNow = immediate && !timeout;
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+                if (callNow) func.apply(context, args);
+            };
+        };
+    </script>
+</body>
+
+</html>

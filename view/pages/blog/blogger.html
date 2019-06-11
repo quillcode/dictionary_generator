@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Blog Editor</title>
+
+    <script src="/static/jslib/vue.js"></script>
+    <script src="/static/jslib/axios.min.js"></script>
+    <!-- import text editor -->
+    <script src="/static/jslib/quill/quill.js"></script>
+    <!-- quill modules -->
+    <script src="/static/jslib/quill/module/image-resize.min.js"></script>
+    <!-- <link href="/static/jslib/quill/quill.snow.css" rel="stylesheet"> -->
+    <link href="/static/jslib/quill/quill.bubble.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/style/blogger.css">
+    <!-- fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Scheherazade" rel="stylesheet">
+    <!-- <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet"> -->
+    <!-- icons -->
+    <link rel="stylesheet" href="/static/icons/materialicons.css">
+    <!-- <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> -->
+
+</head>
+
+<body>
+
+    <div id="app">
+        <header>
+            <div class="dbrt">
+                <div class="logo">
+                    <a href="/">
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAADFwAAAxcBwpsE1QAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAD4SURBVGiB7dUxSsRAFMbx/1s2EOwFrfYQuYitNh5BCyuRrRavIewFPEaqHMJKFg8QEpBnk7DNNjqReY7fr0uT9z6GbwZERCQDA2ia5gx4Bq6AzZIDuq6bZ/iS/wXezOy1qqrHtm37NYC778zsbuFBv23j7vfjOH4CDysAM7vOvFSKG4DV9HGRcZFUl3AM8ucpSDTrXIPna/knTl3lOpFUSz+QxZxIMUFU9mhU9miKCaKyR6OyR1NMEJU9GpU9mmKCqOzRqOzRKEg0c5BD1i3SvMMUxMz2eXdJsofp1ur7/qmuawNugfOcW33Dh7u/DMOwzb2IiMg/9gXkEkMSlB9b8QAAAABJRU5ErkJggg==">
+                    </a>
+                </div>
+                <div class="profile" @click.stop="menu_stat='max'">
+                    <img src="/static/blog/profile_imgs/me.jpg" alt="">
+                    <div class="profile_menu" :class="{maximize:menu_stat=='max', minimize:menu_stat=='min'}">
+                        <i class="material-icons btn_minimize" @click.stop="menu_stat='min'">close</i>
+                        <a href="" class="item">
+                            <i class="material-icons">account_box</i>Profile</a>
+                        <a @click="logout" class="item">
+                            <i class="material-icons">open_in_new</i>Log Out</a>
+                    </div>
+                </div>
+            </div>
+            <div class="hbrb">
+                <nav>
+                    <a href="#all_posts" class="nav_item" :class="{active:activeSection=='#all_posts'}" @click="activeSection='#all_posts'">
+                        <i class="material-icons">library_books</i>
+                        All
+                    </a>
+                    <a href="#add_posts" class="nav_item" :class="{active:activeSection=='#add_posts'}" @click="activeSection='#add_posts'">
+                        <i class="material-icons">library_add</i>
+                        New
+                    </a>
+                    <a href="#draft_posts" class="nav_item" :class="{active:activeSection=='#draft_posts'}" @click="activeSection='#draft_posts'">
+                        <i class="material-icons">insert_drive_file</i>
+                        Drafts
+                    </a>
+
+                    <!-- this item is hidden by default -->
+                    <i class="material-icons more">more_vert</i>
+
+                </nav>
+            </div>
+        </header>
+        <main>
+            <!-- all posts sectoin -->
+            <section id="all_posts" :class="{active:activeSection=='#all_posts'}">
+                <div class="posts" v-if='posts.length > 0'>
+                    <div class="post" v-for="post in posts" :id="'_'+post._id" :key="post._id">
+                        <div class="conetent-wrapper">
+                            <div class="title" lang="ps">
+                                <a :href="'/blog/v/id='+ post._id">
+                                    {{post.title}}
+                                </a>
+                            </div>
+                            <div class="brief" lang="ps">
+                                <a :href="'/blog/v/id='+ post._id">
+                                    {{post.brief}}
+                                </a>
+                            </div>
+                        </div>
+                        <div class="hero-wrapper">
+                            <div class="hero-image">
+                                <a :href="'/blog/v/id='+ post._id">
+                                    <!-- 200x100 is its dimention -->
+                                    <img :src="post.hero_image + '/200x100'" alt="">
+                                </a>
+                            </div>
+                            <div class="hero-controles">
+                                <div class="time"><span>{{new Date(post.date).getFullYear()}}</span></div>
+                                <button class="delete" @click="deletePost(post._id)"><i class="material-icons">delete</i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="empty-poster" v-if='posts.length <= 0'>
+                    <embed type="image/svg+xml" src="/static/img/empty.svg" />
+                </div>
+            </section>
+            <!-- add post section -->
+            <section id="add_posts" :class="{active:activeSection=='#add_posts'}">
+                <!-- header -->
+                <div class="add_posts_header">
+                    <button class="preview">Preview</button>
+                    <button class="draft" @click='draftPost'>Draft it</button>
+                    <button class="publish" @click='publishPost'>Publish</button>
+                </div>
+                <div class="editor-header">
+                    <div class="title">
+                        <!-- <label for="">عنوان</label> -->
+                        <input placeholder="#عنوان ..." v-model:value="newPost.title" lang='ps' type="text">
+                    </div>
+                    <div class="brief">
+                        <!-- <label for="">خلاصه</label> -->
+                        <input placeholder="#خلاصه ..." v-model:value="newPost.brief" lang='ps' type="text">
+                    </div>
+                    <div class="image-url">
+                        <input placeholder="Image URL" v-model:value="newPost.hero_image" type="text" placeholder="image url">
+                    </div>
+                </div>
+                <div class='editor_wrapper' id="scrolling-container " v-pre>
+                    <div id="toolbar">
+                        <span class="ql-formats">
+                            <button class="ql-direction" value="rtl"></button>
+                            <select class="ql-align"></select>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-bold"></button>
+                            <button class="ql-italic"></button>
+                            <button class="ql-underline"></button>
+                            <button class="ql-strike"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <select class="ql-color"></select>
+                            <select class="ql-background"></select>
+                        </span>
+                        <!-- <span class="ql-formats"> -->
+                        <!-- <button class="ql-script" value="sub"></button> -->
+                        <!-- <button class="ql-script" value="super"></button> -->
+                        <!-- </span> -->
+                        <span class="ql-formats">
+                            <button class="ql-header" value="1"></button>
+                            <button class="ql-header" value="2"></button>
+                            <button class="ql-blockquote"></button>
+                            <!-- <button class="ql-code-block"></button> -->
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-list" value="ordered"></button>
+                            <button class="ql-list" value="bullet"></button>
+                            <button class="ql-indent" value="-1"></button>
+                            <button class="ql-indent" value="+1"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-link"></button>
+                            <button class="ql-image"></button>
+                            <!-- <button class="ql-video"></button> -->
+                            <!-- <button class="ql-formula"></button> -->
+                        </span>
+                        <span class="ql-formats">
+                            <select class="ql-font"></select>
+                            <select class="ql-size"></select>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-clean"></button>
+                        </span>
+                    </div>
+                    <div id="editor"></div>
+                </div>
+            </section>
+            <!-- draft section -->
+            <section id="draft_posts" :class="{active:activeSection=='#draft_posts'}"></section>
+        </main>
+    </div><!-- END OF #APP -->
+    <script src="/static/script/blogger.js"></script>
+    <script src="/static/jslib/widgets.js"></script>
+</body>
+
+</html>

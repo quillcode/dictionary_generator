@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<htmllocals.lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Word</title>
+
+
+        <script>
+            // mini lib
+        const select = (el) => document.querySelector(el);
+        const $$ = (el) => document.querySelectorAll(el);
+    </script>
+
+        <script src="/static/jslib/vue.js"></script>
+        <script src="/static/jslib/axios.min.js"></script>
+
+        <link rel="stylesheet" href="/static/style/wordmanager.css">
+        <!-- fonts -->
+        <link href="https://fonts.googleapis.com/css?family=Scheherazade" rel="stylesheet">
+        <!-- <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet"> -->
+        <!-- icons -->
+        <link rel="stylesheet" href="/static/icons/materialicons.css">
+        <!-- <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> -->
+    </head>
+
+    <body>
+
+        <div id="app">
+            <header>
+                <div class="logo">
+                    <a href="/">
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAADFwAAAxcBwpsE1QAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAD4SURBVGiB7dUxSsRAFMbx/1s2EOwFrfYQuYitNh5BCyuRrRavIewFPEaqHMJKFg8QEpBnk7DNNjqReY7fr0uT9z6GbwZERCQDA2ia5gx4Bq6AzZIDuq6bZ/iS/wXezOy1qqrHtm37NYC778zsbuFBv23j7vfjOH4CDysAM7vOvFSKG4DV9HGRcZFUl3AM8ucpSDTrXIPna/knTl3lOpFUSz+QxZxIMUFU9mhU9miKCaKyR6OyR1NMEJU9GpU9mmKCqOzRqOzRKEg0c5BD1i3SvMMUxMz2eXdJsofp1ur7/qmuawNugfOcW33Dh7u/DMOwzb2IiMg/9gXkEkMSlB9b8QAAAABJRU5ErkJggg==">
+                    </a>
+                </div>
+                <div class="profile" @click.stop="menu_stat='max'">
+                    <img src="/static/blog/profile_imgs/me.jpg" alt="">
+                    <div class="profile_menu" :class="{maximize:menu_stat=='max', minimize:menu_stat=='min'}">
+                        <i class="material-icons btn_minimize" @click.stop="menu_stat='min'">close</i>
+                        <a href="" class="item">
+                            <i class="material-icons">account_box</i>Profile</a>
+                        <a href="/" class="item">
+                            <i class="material-icons">open_in_new</i>Log Out</a>
+                    </div>
+                </div>
+            </header>
+
+            <main>
+                <div class="se_wp">
+                    <div class="se_in_wp">
+                        <input placeholder="لټون" :value="wordSearch" type="text" lang="ps" dir="rtl" name="search"
+                            class="se_in">
+                        <i class="material-icons search">search</i>
+                    </div>
+                    <div class="word_list" dir="rtl">
+                        <!-- <li class="list_item"></li> -->
+
+                        <li lang="ps" dir="rtl" v-for="word in headWords" class="list_item" title="Edit">
+                            {{ word.headword }}
+                            <div class="headword-controles">
+                                <i @click="editWord(word.headword)" class="material-icons edit" title="Edit">edit</i>
+                                <i @click="deleteWord($event,word._id)" class="material-icons delete" title="Delete Selected Word">delete_outline</i>
+                            </div>
+                        </li>
+
+                    </div>
+                </div>
+                <div class="edit_wp">
+                    <div class="edit_menu">
+                        <button @click='newWord'>
+                            <i class="material-icons new" title="Add New Word">add_box</i>
+                        </button>
+                        <button @click="saveWord">
+                            <i class="material-icons save" title="Save Changes">save</i>
+                        </button>
+                    </div>
+                    <!-- No Vue here -->
+                    <div class="editor_holder">
+
+                        <!-- /* for pashto to english */ -->
+                        <div class="headword-header">
+
+                            <span class="controles">
+                                <!-- file upload is hidden -->
+                                <input @change="uploadPronunciation($event)" type="file" id="pro_file" style="display: none;">
+                                <!-- this will fire the the click on the file input -->
+                                <i onclick="document.querySelector('#pro_file').click()" class="material-icons" title="upload">attach_file</i>
+                                <a onclick="document.querySelector('#playPro').play();">
+                                    <audio style="visibility:hidden;" id="playPro" src="">
+                                    </audio>
+                                    <i class="material-icons" title="play">play_arrow</i>
+                                </a>
+
+                            </span>
+                            <input lang="ps" class="headword-in in-wr" type="text" v-model:value="word.headword"
+                                placeholder="وی">
+                        </div>
+                        <div v-for="(sense, index) in word.senses" class="sense-wrapper">
+                            <button @click="deleteSense(index)" class="delete-sense"><i class="material-icons">delete</i></button>
+                            <div class="sense-label">
+                                <span class="sense_number" title="Sense number">{{index + 1}}</span>
+                                <!-- <label>Label</label> -->
+                                <select class="label-select" v-model:value="sense.label">
+                                    <option v-for="label in labels" :value="label">{{label}}</option>
+                                </select>
+                            </div>
+                            <div>
+                                <input class="sense-meaning in-wr" type="text" v-model:value="sense.meaning"
+                                    placeholder="sense meaning">
+
+                            </div>
+
+                            <div v-for="(example, xi) in sense.examples" class="sense-examples">
+                                <!-- xi: example index -->
+                                <input placeholder="sense example" class="in-wr" lang="ps" type="text" v-model:value="sense.examples[xi]">
+                                <button @click="deleteEx(sense.examples, xi)"><i class="material-icons">cancel</i></button>
+                            </div>
+                            <div class="xs-controles">
+                                <button @click="sense.examples.push('')">
+                                    <i class="material-icons">add</i>
+                                </button>
+                            </div>
+                        </div>
+                        <button @click="addSense" class="sense-add"><i class="material-icons">add_circle</i></button>
+                    </div>
+                </div>
+            </main>
+
+            <div class="overlay" v-if="loading">
+                <span class="spiner"></span>
+            </div>
+        </div>
+
+
+        <script src="/static/jslib/widgets.js"></script>
+        <script>
+            const labels = ["noun","adjective","verd","adverb","abbreviation", "abusive", "accounting", "action noun", "adjectival suffix", "adjective",
+                "administration", "adverd", "adverbial prefix", "adverbial suffix"
+            ];
+
+            const vm = new Vue({
+                el: '#app',
+                data: {
+                    loading: false,
+                    menu_stat: '',
+                    headWords: "",
+                    wordSearch: "",
+                    word: {
+                        headword: "",
+                        pronunciation_url: '',
+                        senses: [{
+                            lable: "",
+                            meaning: "",
+                            examples: [""]
+                        }],
+                        meta: {
+                            last_modified_by: '',
+                        },
+                    },
+                    labels,
+                },
+                methods: {
+                    newWord() {
+                        // reset to default
+
+                        widgets.confirm('Are you sure want to discard curent changes', 'warn', (bool) => {
+                            if (bool == true) {
+                                vm.word = {
+                                    headword: "",
+                                    pronunciation_url: '',
+                                    senses: [{
+                                        lable: "",
+                                        meaning: "",
+                                        examples: [""]
+                                    }],
+                                    meta: {
+                                        last_modified_by: '',
+                                    },
+                                }
+                            }
+                        });
+
+                        vm.word = {
+                            headword: "",
+                            pronunciation_url: '',
+                            senses: [{
+                                lable: "",
+                                meaning: "",
+                                examples: [""]
+                            }],
+                            meta: {
+                                last_modified_by: '',
+                            },
+                        }
+                    },
+                    editWord(word) {
+                        axios.get('/api/dictionary/s=' + word)
+                            .then(response => {
+                                vm.word = response.data;
+                                vm.wordSearch = word.headword;
+                            });
+                    },
+                    saveWord() {
+                        // show spinner
+                        vm.loading = true;
+                        let mp3File = document.querySelector('#pro_file').files[0];
+                        let formData = new FormData()
+                        let wo = vm.word;
+                        if(!mp3File){
+                            widgets.notify('Word not added', 'warn');
+                            vm.loading = false;
+                        }
+                        wo.pronunciation_url = mp3File.name;
+                        // if you want to upload multiple files at once loop 
+                        // through the array of files
+                        formData.append('attachment', mp3File)
+                        // first upload the pronunciation
+                        axios.post('/api/dictionary/mp3/upload', formData).then(
+
+                            // if the file upload was successfull
+        
+                            axios.post('/api/dictionary/save', wo)
+                            .then(response => {
+                                widgets.notify('Word added', 'info');
+                                vm.loading = false;
+                                vm.updateHeadwords();
+                            }).catch(error => {
+                                console.log(error.response);
+                            })
+
+                        ).catch((erorr) => {
+                            vm.loading = false;
+                            console.error(error);
+                        });
+                    },
+                    deleteWord(e, wrodId) {
+
+                        e.stopPropagation()
+                        widgets.confirm('Are you sure want to delete', 'warn', (bool) => {
+                            if (bool == true) {
+                                vm.loading = false;
+
+                                axios.get('/api/dictionary/delete/' + wrodId).then(function (response) {
+                                    vm.updateHeadwords();
+                                    vm.loading = false;
+                                }).catch(error => {
+                                    console.error(error);
+                                    vm.loading = false;
+                                });
+                            }
+                        });
+
+                    },
+                    addSense() {
+                        vm.word.senses.push({
+                            label: "",
+                            meaning: "",
+                            examples: [""]
+                        });
+
+                        this.$nextTick(function () {
+                            // Code that will run only after the
+                            // entire view has been re-rendered
+                            // the last .sense-wrapper added
+                            let sw = select(".editor_holder > .sense-wrapper:last-of-type");
+                            sw.scrollIntoView("smooth");
+                        });
+
+                    },
+                    deleteSense(index) {
+                        // at least one sense is required
+                        if (vm.word.senses.length <= 1) return;
+                        vm.word.senses.splice(index, 1);
+                    },
+                    deleteEx(sx, xi) {
+                        if (sx.length <= 0) return;
+                        sx.splice(xi, 1);
+                    },
+                    updateHeadwords() {
+                        axios.get('/api/dictionary/headwords')
+                            .then(function (response) {
+                                // handle success
+                                vm.headWords = response.data;
+                            });
+                    },
+                    uploadPronunciation: uploadPronunciation
+                },
+                created: function () {
+                    axios.get('/api/dictionary/headwords')
+                        .then(function (response) {
+                            // handle success
+                            vm.headWords = response.data;
+                        });
+                }
+            });
+
+
+            function uploadPronunciation(event) {
+                let audio = document.querySelector('#playPro');
+                let target = event.currentTarget;
+                let file = target.files[0];
+                let reader = new FileReader();
+
+                if (target.files && file) {
+                    reader.onload = function (event) {
+                        audio.setAttribute('src', event.target.result);
+                    }
+                    reader.readAsDataURL(file);
+                }
+            }
+        </script>
+
+    </body>
+
+    </html>

@@ -1,0 +1,75 @@
+@import './com.css';
+
+header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding-left: 12%;
+    padding-right: 12%;
+    height: 65px;
+    background-color: #fff;
+}
+
+.about {
+    margin-left: auto;
+}
+
+.about>a {
+    display: inline-block;
+    padding: 5px 15px;
+    border: 1px solid rgba(0, 0, 0, .54);
+    border-radius: 4px;
+}
+
+.logo {
+    display: inline-flex;
+    align-items: flex-end;
+    cursor: pointer;
+    user-select: none;
+}
+
+.post-wrapper {
+    padding-left: 12%;
+    padding-right: 12%;
+    margin-top: 50px;
+    min-height: 65vh
+}
+.title{
+    font-size: 24px;
+    font-weight: 600;
+    margin-right: auto;
+    margin-left: auto;
+    min-width: max-content;
+    padding: 12px 5px;
+    color: rgba(0,0,0,.84);
+}
+.brief{
+    padding: 12px 5px;
+    color: rgba(0,0,0,.54);
+}
+
+.hero_image_wrapper{
+    overflow: hidden;
+    border-radius: 4px;
+    height: 400px;
+    width: 100%;
+    margin: 20px 0;
+    background-color: silver;
+}
+#hero_image{
+    height: inherit;
+    width: inherit;
+}
+
+.ql-editor{
+    direction: rtl;
+    font-size: 22px;
+}
+
+/* footer */
+footer{
+    width:100%;
+    margin-top: 30px;
+    height: 100px;
+    background-color: rgba(0, 0, 0, .84);
+}

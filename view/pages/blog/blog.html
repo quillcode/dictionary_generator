@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Blog</title>
+    <script src="/static/jslib/vue.js"></script>
+    <script src="/static/jslib/axios.min.js"></script>
+    <!-- import text editor -->
+    <!-- <script src="/static/jslib/quill/quill.js"></script> -->
+    <!-- quill modules -->
+    <!-- <script src="/static/jslib/quill/module/image-resize.min.js"></script> -->
+    <!-- <link href="/static/jslib/quill/quill.snow.css" rel="stylesheet"> -->
+    <!-- <link href="/static/jslib/quill/quill.bubble.css" rel="stylesheet"> -->
+
+    <link rel="stylesheet" href="/static/style/blog.css">
+
+    <!-- icons -->
+    <link rel="stylesheet" href="/static/icons/materialicons.css">
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <a href="/">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAADFwAAAxcBwpsE1QAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAD4SURBVGiB7dUxSsRAFMbx/1s2EOwFrfYQuYitNh5BCyuRrRavIewFPEaqHMJKFg8QEpBnk7DNNjqReY7fr0uT9z6GbwZERCQDA2ia5gx4Bq6AzZIDuq6bZ/iS/wXezOy1qqrHtm37NYC778zsbuFBv23j7vfjOH4CDysAM7vOvFSKG4DV9HGRcZFUl3AM8ucpSDTrXIPna/knTl3lOpFUSz+QxZxIMUFU9mhU9miKCaKyR6OyR1NMEJU9GpU9mmKCqOzRqOzRKEg0c5BD1i3SvMMUxMz2eXdJsofp1ur7/qmuawNugfOcW33Dh7u/DMOwzb2IiMg/9gXkEkMSlB9b8QAAAABJRU5ErkJggg==">
+            </a>
+        </div>
+        <div class="about">
+            <a href="/about" target="_new">About</a>
+        </div>
+    </header>
+    <div class="brand_header">
+        <div class="header-hero"></div>
+        <nav></nav>
+    </div>
+
+    <div id="app">
+        <section class="posts2">
+            <!-- top 2 posts -->
+            <div class="posts2-item" v-for='p2 in top_2p'>
+                <a :href="'/blog/v/id='+ p2._id" class="p2-img-w">
+                    <!-- 280 / 480 -->
+                    <img :src="p2.hero_image+ '/280x480'" alt="Post hero image">
+                    <!-- <img :src="p2.hero_image/280x480" alt="Post hero image"> -->
+                </a>
+                <div class="content">
+                    <a :href="'/blog/v/id='+ p2._id">
+                        <h3>
+                            <div lang="ps" dir="rtl" class="title">{{p2.title}}</div>
+                        </h3>
+                        <div lang="ps" dir="rtl" class="brief">{{p2.brief}}</div>
+                    </a>
+                    <div class="footer">
+                        <div class="author">
+                            <div class="author-avatar">
+                                <img src="/static/blog/profile_imgs/me.jpg" alt="">
+                            </div>
+                            <div class="post-meta">
+                                <div class="author-name">{{p2.author}}</div>
+                                <div class="time">{{new Date(p2.date).getFullYear()}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="posts">
+            <div class="post-item" v-for="post in posts">
+                <a :href="'/blog/v/id='+ post._id" class="p-img-w">
+                    <!-- 280 / 480 -->
+                    <img src="https://source.unsplash.com/user/erondu/480x280" alt="Post hero image">
+                </a>
+                <div class="content">
+                    <a :href="'/blog/v/id='+ post._id">
+                        <h3>
+                            <div lang="ps" dir="rtl" class="title">{{post.title}}</div>
+                        </h3>
+                        <div lang="ps" dir="rtl" class="brief">{{post.brief}}</div>
+                    </a>
+                    <div class="footer">
+                        <div class="author">
+                            <div class="author-avatar">
+                                <img src="/static/blog/profile_imgs/me.jpg" alt="">
+                            </div>
+                            <div class="post-meta">
+                                <div class="author-name">{{post.author}}</div>
+                                <div class="time">{{new Date(post.date).getFullYear()}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    </div><!-- END OF #APP -->
+    <footer>
+
+    </footer>
+    <script src="/static/script/blog.js"></script>
+    <script src="/static/jslib/widgets.js"></script>
+</body>
+
+</html>

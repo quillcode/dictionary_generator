@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Login</title>
+    <script>
+        // mini lib
+        const select = e => document.querySelector(e);
+        const $$ = e => document.querySelectorAll(e);
+    </script>
+
+    <script src="/static/jslib/axios.min.js"></script>
+
+    <link rel="stylesheet" href="/static/style/login.css">
+
+    <!-- icons -->
+    <link rel="stylesheet" href="/static/icons/materialicons.css">
+    <!-- <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> -->
+
+</head>
+
+<body>
+
+    <div class="logo">
+        <a href="/">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAADFwAAAxcBwpsE1QAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAD4SURBVGiB7dUxSsRAFMbx/1s2EOwFrfYQuYitNh5BCyuRrRavIewFPEaqHMJKFg8QEpBnk7DNNjqReY7fr0uT9z6GbwZERCQDA2ia5gx4Bq6AzZIDuq6bZ/iS/wXezOy1qqrHtm37NYC778zsbuFBv23j7vfjOH4CDysAM7vOvFSKG4DV9HGRcZFUl3AM8ucpSDTrXIPna/knTl3lOpFUSz+QxZxIMUFU9mhU9miKCaKyR6OyR1NMEJU9GpU9mmKCqOzRqOzRKEg0c5BD1i3SvMMUxMz2eXdJsofp1ur7/qmuawNugfOcW33Dh7u/DMOwzb2IiMg/9gXkEkMSlB9b8QAAAABJRU5ErkJggg==">
+        </a>
+    </div>
+    <div class="banner">
+        <span>
+            Member Login
+        </span>
+    </div>
+    <div class="error-msg">
+
+    </div>
+    <div class="login-container">
+        <form class="wrapper">
+            <label>Username or email address</label>
+            <input id="uname" type="text" autocomplete="username" autofocus>
+
+            <label>Password</label>
+            <input id="pass" type="password" autocomplete="current-password">
+
+            <button id="login_btn" type="submit">Sign in</button>
+        </form>
+    </div>
+
+    <script>
+        let ui = select('#uname'); // username input
+        let pi = select('#pass'); // password input
+        select('#login_btn').addEventListener('click', (event) => {
+            event.preventDefault();
+
+            // add class of danger if no username is supplied
+            if (ui.value == "") {
+                ui.classList.add('danger');
+                return;
+            }
+            // add class of danger if no password is supplied
+            if (pi.value == "") {
+                pi.classList.add('danger');
+                return;
+            }
+
+            // do a post request for loggin
+            axios.post('/api/users/login', {
+                    user_name: ui.value,
+                    password: pi.value
+                })
+                .then(res => {
+                    // authenticated , redirect to
+                    console.log(res.data.redirect);
+                    console.log(res.data);
+                    if(res.data.error){
+                        let err = select('.error-msg');
+                        err.classList.add('active');
+                        err.innerText = res.data.msg;
+
+                        return;
+                    }
+                    // refresh the page if res.data.redirect is undefiend
+                    window.location.href = res.data.redirect || '/login';
+                    
+                }).catch(error => {
+                    console.error(error);
+                });
+        });
+
+        ui.addEventListener('focus', (e) => focusAchived(ui));
+        pi.addEventListener('focus', (e) => focusAchived(pi));
+
+        function focusAchived(el){
+            el.classList.remove('danger');
+            select('.error-msg').classList.remove('active');
+        }
+    </script>
+</body>
+
+</html>

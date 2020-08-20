@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^3.0.2",
+    "bcrypt": "^5.0.0",
     "connect-mongo": "^2.0.1",
     "easy-rbac": "^3.1.0",
     "easy-session": "^2.0.2",
